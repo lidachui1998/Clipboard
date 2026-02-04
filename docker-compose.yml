@@ -1,7 +1,5 @@
 # 飞牛 OS / 本机部署：使用 GitHub 自动构建的镜像，数据落在当前目录 ./data
 # 直接 docker compose pull && docker compose up -d 即可拉取最新镜像并启动
-version: "3.8"
-
 services:
   clipboard:
     image: ghcr.io/lidachui1998/clipboard:latest
@@ -13,3 +11,11 @@ services:
       - PORT=3846
     volumes:
       - ./data:/app/data
+    labels:
+      watchcow.enable: "true"
+      watchcow.display_name: "Clipboard"
+      watchcow.desc: "剪切板中转站"
+      watchcow.service_port: "3846"
+      watchcow.protocol: "http"
+      watchcow.path: "/"
+      watchcow.icon: "https://r2.bjca.xyz/pasted_file_1770197357370_image.png"

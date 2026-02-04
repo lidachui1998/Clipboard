@@ -48,6 +48,8 @@ docker run -d --name lan-clipboard -p 3846:3846 \
 - **卷**：挂载 **`./data`** 到容器内 `/app/data`，历史与上传文件都会保存在宿主机 `./data` 下。
 - 局域网访问：`http://<飞牛OS的IP>:3846`。
 
+**拉取报 `unauthorized` 时**：GitHub 默认把 Actions 构建的镜像设为私有。请打开仓库 → 右侧 **Packages**（或 `https://github.com/lidachui1998/Clipboard/pkgs/container/clipboard`）→ 进入该 package → **Package settings** → **Change visibility** 改为 **Public**，保存后即可无需登录拉取。
+
 ## 环境变量
 
 | 变量   | 说明     | 默认值 |
