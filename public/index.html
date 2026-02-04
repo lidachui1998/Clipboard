@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>局域网剪切板</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="app">
+    <header class="header">
+      <h1 class="logo">剪贴板</h1>
+      <div class="header-actions">
+        <button type="button" class="btn btn-ghost btn-icon" id="themeBtn" title="切换主题" aria-label="切换主题">☀</button>
+        <div class="status" id="status">
+          <span class="status-dot" aria-hidden="true"></span>
+          <span class="status-text" id="statusText">连接中</span>
+        </div>
+      </div>
+    </header>
+
+    <section class="input-section" id="pasteZone">
+      <div class="input-inner">
+        <textarea
+          id="textInput"
+          placeholder="输入后 Enter 发送；在下方空白处 Ctrl+V 粘贴即直接发送，无需点按钮"
+          rows="2"
+        ></textarea>
+        <div class="upload-progress-wrap" id="uploadProgressWrap" aria-hidden="true">
+          <div class="upload-progress-bar">
+            <div class="upload-progress-bar-inner" id="uploadProgressBar"></div>
+          </div>
+          <span class="upload-progress-text" id="uploadProgressText">0%</span>
+        </div>
+        <div class="input-bar">
+          <label class="btn btn-ghost file-label">
+            <input type="file" id="fileInput" hidden />
+            选择文件
+          </label>
+          <button type="button" class="btn btn-ghost" id="readClipboardBtn">读取剪贴板</button>
+          <span class="input-hint">支持拖拽到此处</span>
+          <button type="button" class="btn btn-primary" id="sendBtn">发送</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="feed-section">
+      <div class="feed-toolbar">
+        <input type="text" class="feed-search" id="feedSearch" placeholder="搜索…" autocomplete="off" />
+        <select class="feed-type-filter" id="feedTypeFilter" aria-label="类型筛选">
+          <option value="">全部</option>
+          <option value="text">文字</option>
+          <option value="image">图片</option>
+          <option value="video">视频</option>
+          <option value="file">文件</option>
+        </select>
+        <button type="button" class="btn btn-ghost btn-sm" id="clearAllBtn">清空全部</button>
+      </div>
+      <h2 class="feed-section-title">历史记录</h2>
+      <div class="feed-list" id="feedList"></div>
+      <div class="feed-load-more-wrap" id="feedLoadMoreWrap" style="display:none">
+        <button type="button" class="btn btn-ghost" id="feedLoadMore">加载更多</button>
+      </div>
+    </section>
+    <div class="feed-empty" id="feedEmpty">暂无记录，发送或粘贴内容开始同步</div>
+  </div>
+
+  <div class="modal" id="previewModal" aria-hidden="true">
+    <div class="modal-backdrop" id="modalBackdrop"></div>
+    <div class="modal-content">
+      <button type="button" class="modal-close" id="modalClose" aria-label="关闭">×</button>
+      <div class="modal-body">
+        <img id="previewImage" class="preview-media preview-image" alt="预览" />
+        <video id="previewVideo" class="preview-media preview-video" controls></video>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal confirm-modal" id="confirmModal" aria-hidden="true">
+    <div class="modal-backdrop" id="confirmModalBackdrop"></div>
+    <div class="confirm-content">
+      <p class="confirm-text" id="confirmText">确定删除这条记录？</p>
+      <div class="confirm-actions">
+        <button type="button" class="btn" id="confirmCancel">取消</button>
+        <button type="button" class="btn btn-primary btn-danger" id="confirmOk">确定删除</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal confirm-modal" id="clearAllModal" aria-hidden="true">
+    <div class="modal-backdrop" id="clearAllModalBackdrop"></div>
+    <div class="confirm-content">
+      <p class="confirm-text">确定清空全部记录？将同时删除已上传的文件。</p>
+      <div class="confirm-actions">
+        <button type="button" class="btn" id="clearAllCancel">取消</button>
+        <button type="button" class="btn btn-primary btn-danger" id="clearAllOk">确定清空</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast" aria-live="polite"></div>
+
+  <!-- 使用 CDN 加快首屏，避免等自家服务返回脚本 -->
+  <script src="https://cdn.socket.io/4.7.2/socket.io.min.js" crossorigin="anonymous"></script>
+  <script src="app.js"></script>
+</body>
+</html>

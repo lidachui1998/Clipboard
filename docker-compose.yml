@@ -1,0 +1,15 @@
+# 飞牛 OS / 本机部署：数据落在当前目录 ./data，方便备份与迁移
+version: "3.8"
+
+services:
+  clipboard:
+    image: lan-clipboard:latest
+    build: .
+    container_name: lan-clipboard
+    restart: unless-stopped
+    ports:
+      - "3846:3846"
+    environment:
+      - PORT=3846
+    volumes:
+      - ./data:/app/data
