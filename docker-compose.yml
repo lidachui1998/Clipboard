@@ -1,10 +1,10 @@
-# 飞牛 OS / 本机部署：数据落在当前目录 ./data，方便备份与迁移
+# 飞牛 OS / 本机部署：使用 GitHub 自动构建的镜像，数据落在当前目录 ./data
+# 直接 docker compose pull && docker compose up -d 即可拉取最新镜像并启动
 version: "3.8"
 
 services:
   clipboard:
-    image: lan-clipboard:latest
-    build: .
+    image: ghcr.io/lidachui1998/clipboard:latest
     container_name: lan-clipboard
     restart: unless-stopped
     ports:
