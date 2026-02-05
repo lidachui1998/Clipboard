@@ -1,5 +1,7 @@
 (function () {
   const textInput = document.getElementById('textInput');
+  const imageInput = document.getElementById('imageInput');
+  const cameraInput = document.getElementById('cameraInput');
   const fileInput = document.getElementById('fileInput');
   const sendBtn = document.getElementById('sendBtn');
   const feedList = document.getElementById('feedList');
@@ -493,20 +495,41 @@
   }
 
   fileInput.addEventListener('change', () => {
-    const file = fileInput.files && fileInput.files[0];
-    if (!file) return;
-    uploadAndSend(file);
+    const files = fileInput.files;
+    if (!files || !files.length) return;
+    for (let i = 0; i < files.length; i++) uploadAndSend(files[i]);
     fileInput.value = '';
   });
 
-  /* ---------- 读取设备剪贴板（需用户授权） ---------- */
+  if (imageInput) {
+    imageInput.addEventListener('change', () => {
+      const files = imageInput.files;
+      if (!files || !files.length) return;
+      for (let i = 0; i < files.length; i++) uploadAndSend(files[i]);
+      imageInput.value = '';
+    });
+  }
+  if (cameraInput) {
+    cameraInput.addEventListener('change', () => {
+      const file = cameraInput.files && cameraInput.files[0];
+      if (!file) return;
+      uploadAndSend(file);
+      cameraInput.value = '';
+    });
+  }
+
+  /* ---------- 读取设备剪贴板（需用户授权，且需 HTTPS/安全上下文） ---------- */
   readClipboardBtn.addEventListener('click', async () => {
     if (!socket) {
       showToast('未连接，请稍候');
       return;
     }
+    if (!navigator.clipboard) {
+      showToast('当前环境不支持读取剪贴板（需 HTTPS 或安全上下文）');
+      return;
+    }
     try {
-      if (!navigator.clipboard || !navigator.clipboard.read) {
+      if (typeof navigator.clipboard.read !== 'function') {
         const text = await navigator.clipboard.readText();
         if ((text || '').trim()) {
           socket.emit('clipboard', { type: 'text', text: text.trim() });

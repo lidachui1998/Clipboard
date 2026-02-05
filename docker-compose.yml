@@ -13,7 +13,7 @@ services:
       - ./data:/app/data
     labels:
       watchcow.enable: "true"
-      watchcow.display_name: "Clipboard"
+      watchcow.display_name: "剪切板"
       watchcow.desc: "剪切板中转站"
       watchcow.service_port: "3846"
       watchcow.protocol: "http"

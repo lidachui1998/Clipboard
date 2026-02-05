@@ -23,7 +23,7 @@
       <div class="input-inner">
         <textarea
           id="textInput"
-          placeholder="输入后 Enter 发送；在下方空白处 Ctrl+V 粘贴即直接发送，无需点按钮"
+          placeholder="输入后 Enter 发送；可粘贴或选图片/文件发送；手机端用「选择图片」打开相册"
           rows="2"
         ></textarea>
         <div class="upload-progress-wrap" id="uploadProgressWrap" aria-hidden="true">
@@ -33,8 +33,16 @@
           <span class="upload-progress-text" id="uploadProgressText">0%</span>
         </div>
         <div class="input-bar">
-          <label class="btn btn-ghost file-label">
-            <input type="file" id="fileInput" hidden />
+          <label class="btn btn-ghost file-label" title="手机端会打开相册，可多选">
+            <input type="file" id="imageInput" accept="image/*" multiple hidden />
+            选择图片
+          </label>
+          <label class="btn btn-ghost file-label input-bar-camera" title="手机端可直接拍照">
+            <input type="file" id="cameraInput" accept="image/*" capture="environment" hidden />
+            拍照
+          </label>
+          <label class="btn btn-ghost file-label" title="选择文档、视频等任意文件，可多选">
+            <input type="file" id="fileInput" multiple hidden />
             选择文件
           </label>
           <button type="button" class="btn btn-ghost" id="readClipboardBtn">读取剪贴板</button>
