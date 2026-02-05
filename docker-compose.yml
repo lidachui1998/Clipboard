@@ -1,5 +1,5 @@
 # 飞牛 OS / 本机部署：使用 GitHub 自动构建的镜像，数据落在当前目录 ./data
-# 直接 docker compose pull && docker compose up -d 即可拉取最新镜像并启动
+# 飞牛界面可能不会提示「有更新」：请定期在终端执行 docker compose pull && docker compose up -d 拉取最新镜像
 services:
   clipboard:
     image: ghcr.io/lidachui1998/clipboard:latest

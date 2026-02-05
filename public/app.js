@@ -525,7 +525,15 @@
       return;
     }
     if (!navigator.clipboard) {
-      showToast('当前环境不支持读取剪贴板（需 HTTPS 或安全上下文）');
+      showToast('请在下方输入框粘贴（Ctrl+V 或长按粘贴）后点发送');
+      if (textInput) {
+        textInput.focus();
+        var origPlaceholder = textInput.placeholder;
+        textInput.placeholder = '在此粘贴后按 Enter 或点发送';
+        var restore = function () { textInput.placeholder = origPlaceholder; textInput.removeEventListener('blur', restore); };
+        textInput.addEventListener('blur', restore);
+        setTimeout(restore, 12000);
+      }
       return;
     }
     try {

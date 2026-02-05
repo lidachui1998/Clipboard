@@ -50,6 +50,16 @@ docker run -d --name lan-clipboard -p 3846:3846 \
 
 **拉取报 `unauthorized` 时**：GitHub 默认把 Actions 构建的镜像设为私有。请打开仓库 → 右侧 **Packages**（或 `https://github.com/lidachui1998/Clipboard/pkgs/container/clipboard`）→ 进入该 package → **Package settings** → **Change visibility** 改为 **Public**，保存后即可无需登录拉取。
 
+### 飞牛上为什么看不到「可更新的镜像」？
+
+飞牛（以及很多 NAS）用 **同一个 tag（如 `latest`）** 时，一般**不会**去远程对比镜像是否变新，所以界面上不会自动出现「有更新」提示。可以这样更新到最新镜像：
+
+1. **在飞牛终端执行**（推荐）：  
+   `docker compose pull && docker compose up -d`  
+   会拉取最新的 `latest` 并重启容器。
+2. **在飞牛容器/应用界面**：找到该应用，执行「拉取镜像」或「重新部署」（若有），再重启。
+3. **想看到「新版本」时**：Actions 每次构建会同时打 tag `run-<序号>`（如 `run-42`）。若你改用 `ghcr.io/你的用户名/clipboard:run-42` 这类 tag，每次构建序号递增，飞牛可能据此显示不同版本；仍建议以 `latest` + 定期手动 pull 为主。
+
 ## 环境变量
 
 | 变量   | 说明     | 默认值 |
