@@ -1,0 +1,15 @@
+[
+  {
+    "stepTitle": "\u4f7f\u7528\u8bf4\u660e",
+    "items": [
+      {
+        "type": "tips",
+        "helpText": "\u5b89\u88c5\u5b8c\u6210\u540e\uff0c\u8bf7\u5728\u6d4f\u89c8\u5668\u6253\u5f00 http://<NAS-IP>:3846"
+      },
+      {
+        "type": "tips",
+        "helpText": "\u5982\u679c\u65e0\u6cd5\u8bbf\u95ee\uff0c\u8bf7\u786e\u8ba4\u624b\u673a\u4e0e NAS \u5728\u540c\u4e00\u5c40\u57df\u7f51\u3002"
+      }
+    ]
+  }
+]
