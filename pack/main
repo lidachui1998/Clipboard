@@ -1,0 +1,93 @@
+#!/bin/sh
+
+APPNAME=fnnas.clipboard
+PIDDIR=${TRIM_PKGVAR}/run
+PIDFILE=${PIDDIR}/service.pid
+LOG_FILE=${TRIM_PKGVAR}/info.log
+CONF_FILE=${TRIM_PKGETC}/${APPNAME}.env
+
+export PATH=/var/apps/nodejs_v22/target/bin:$PATH
+
+if [ -f "${CONF_FILE}" ]; then
+    . ${CONF_FILE}
+fi
+
+DATA_DIR="${TRIM_DATA_SHARE_PATHS%%:*}"
+PORT=${PORT:-3846}
+
+export DATA_DIR
+export PORT
+
+if [ ! -d "${PIDDIR}" ]; then
+    mkdir -p ${PIDDIR}
+fi
+
+sleep=3
+proc_path=${TRIM_APPDEST}/server/index.cjs
+proc_cmd="node ${proc_path}"
+
+status() {
+    local pid
+    if [ -f ${PIDFILE} ]; then
+        pid=`cat ${PIDFILE}`
+        if [ -n "${pid}" ]; then
+            if [ -d /proc/${pid} ]; then
+                return 0
+            fi
+        fi
+    fi
+    return 1
+}
+
+start() {
+    echo "Starting ${APPNAME} ..."
+    status
+    if [ $? -eq 0 ]; then
+        return 0
+    fi
+    setsid ${proc_cmd} >> ${LOG_FILE} 2>&1 &
+    pid=$!
+    echo ${pid} > ${PIDFILE}
+    return 0
+}
+
+stop() {
+    echo "Stopping ${APPNAME} ..."
+    status
+    if [ $? -eq 0 ]; then
+        kill -15 `cat ${PIDFILE}`
+        sleep ${sleep}
+        status
+        if [ $? -eq 0 ]; then
+            kill -9 `cat ${PIDFILE}`
+        fi
+    fi
+    return 0
+}
+
+restart() {
+    echo "Restarting ${APPNAME} ..."
+    stop
+    start
+}
+
+case $1 in
+    start)
+        start
+        exit $?
+        ;;
+    stop)
+        stop
+        exit $?
+        ;;
+    restart)
+        restart
+        exit $?
+        ;;
+    status)
+        status
+        exit $?
+        ;;
+    *)
+        exit 1
+esac

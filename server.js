@@ -12,7 +12,7 @@ const httpServer = createServer();
 // 局域网优先：仅用 WebSocket，省掉轮询，延迟更低
 const io = new Server(httpServer, {
   cors: { origin: '*' },
-  transports: ['websocket'],
+  transports: ['polling', 'websocket'],
   pingTimeout: 20000,
   pingInterval: 10000,
 });
@@ -23,7 +23,12 @@ httpServer.on('request', (req, res) => {
 });
 
 const PORT = process.env.PORT || 3846;
-const DATA_DIR = path.join(__dirname, 'data');
+// Prefer external data dir when running as a native app on NAS.
+const ENV_DATA_DIR =
+  (process.env.DATA_DIR && process.env.DATA_DIR.trim()) ||
+  (process.env.TRIM_DATA_SHARE_PATHS && process.env.TRIM_DATA_SHARE_PATHS.split(':')[0].trim()) ||
+  '';
+const DATA_DIR = ENV_DATA_DIR ? path.resolve(ENV_DATA_DIR) : path.join(__dirname, 'data');
 const DATA_FILE = path.join(DATA_DIR, 'clipboard.json');
 const UPLOAD_DIR = path.join(DATA_DIR, 'uploads');
 const LEGACY_UPLOAD_DIR = path.join(__dirname, 'uploads');
@@ -165,6 +170,22 @@ function addRecent(item) {
   saveItems(recentItems);
 }
 
+function clearAllItems() {
+  try {
+    const names = fs.existsSync(UPLOAD_DIR) ? fs.readdirSync(UPLOAD_DIR) : [];
+    for (const name of names) {
+      const filePath = path.join(UPLOAD_DIR, name);
+      if (fs.statSync(filePath).isFile()) fs.unlinkSync(filePath);
+    }
+    recentItems.length = 0;
+    saveItems(recentItems);
+    return true;
+  } catch (e) {
+    console.error('Clear all failed:', e.message);
+    return false;
+  }
+}
+
 function deleteFileForItem(item) {
   if (!item) return;
   const url = item.url || item.u;
@@ -198,6 +219,44 @@ function removeRecent(id) {
   return removed;
 }
 
+app.get('/api/recent', (req, res) => {
+  const since = Number(req.query.since);
+  if (!Number.isFinite(since) || since <= 0) return res.json(recentItems);
+  const list = recentItems.filter((x) => (x.ts || 0) > since);
+  return res.json(list);
+});
+
+app.post('/api/clipboard', (req, res) => {
+  const payload = req.body || {};
+  const item = {
+    id: uuidv4(),
+    ts: Date.now(),
+    type: payload.type,
+    text: payload.text,
+    url: payload.url,
+    filename: payload.filename,
+    mimetype: payload.mimetype,
+    size: payload.size,
+  };
+  if (!item.type) return res.status(400).json({ error: 'Missing type' });
+  addRecent(item);
+  io.emit('clipboard', item);
+  return res.json(item);
+});
+
+app.delete('/api/clipboard/:id', (req, res) => {
+  const id = req.params.id;
+  const removed = removeRecent(id);
+  if (removed) io.emit('deleted', String(id).trim());
+  return res.json({ ok: removed });
+});
+
+app.post('/api/clear', (_req, res) => {
+  const ok = clearAllItems();
+  if (ok) io.emit('cleared');
+  return res.json({ ok });
+});
+
 io.on('connection', (socket) => {
   socket.emit('recent', recentItems);
 
@@ -220,18 +279,7 @@ io.on('connection', (socket) => {
   });
 
   socket.on('clearAll', () => {
-    try {
-      const names = fs.existsSync(UPLOAD_DIR) ? fs.readdirSync(UPLOAD_DIR) : [];
-      for (const name of names) {
-        const filePath = path.join(UPLOAD_DIR, name);
-        if (fs.statSync(filePath).isFile()) fs.unlinkSync(filePath);
-      }
-      recentItems.length = 0;
-      saveItems(recentItems);
-      io.emit('cleared');
-    } catch (e) {
-      console.error('Clear all failed:', e.message);
-    }
+    if (clearAllItems()) io.emit('cleared');
   });
 });
 

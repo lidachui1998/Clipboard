@@ -567,12 +567,6 @@ body::before {
   line-height: 1.5;
 }
 
-.install-desc {
-  margin-top: -10px;
-  font-size: 0.8125rem;
-  color: var(--muted);
-}
-
 .confirm-actions {
   display: flex;
   justify-content: flex-end;

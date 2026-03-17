@@ -1,0 +1,14 @@
+appname=fnnas.clipboard
+version=1.0.0
+desc=局域网剪切板
+arch=x86_64
+display_name=局域网剪切板
+maintainer=lidachui
+maintainer_url=https://github.com/lidachui1998/Clipboard
+distributor=lidachui
+distributor_url=https://github.com/lidachui1998/Clipboard
+homepage=https://github.com/lidachui1998/Clipboard
+desktop_uidir=ui
+desktop_applaunchname=fnnas.clipboard.Application
+source=thirdparty
+install_dep_apps=nodejs_v22

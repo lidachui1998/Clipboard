@@ -20,13 +20,6 @@
   const confirmModalBackdrop = document.getElementById('confirmModalBackdrop');
   const confirmCancel = document.getElementById('confirmCancel');
   const confirmOk = document.getElementById('confirmOk');
-
-  const installModal = document.getElementById('installModal');
-  const installModalBackdrop = document.getElementById('installModalBackdrop');
-  const installTitle = document.getElementById('installTitle');
-  const installDesc = document.getElementById('installDesc');
-  const installOpenBtn = document.getElementById('installOpenBtn');
-  const installOkBtn = document.getElementById('installOkBtn');
   const uploadProgressWrap = document.getElementById('uploadProgressWrap');
   const uploadProgressBar = document.getElementById('uploadProgressBar');
   const uploadProgressText = document.getElementById('uploadProgressText');
@@ -157,39 +150,7 @@
     statusEl.classList.remove('error');
     statusEl.classList.add('connected');
     statusText.textContent = label || '\u5df2\u8fde\u63a5';
-    if (!installShown) showInstallModal();
   }
-
-
-  let installShown = false;
-
-  function showInstallModal() {
-    if (!installModal || installShown) return;
-    try {
-      if (localStorage.getItem('clipboard-install-shown') === '1') return;
-      localStorage.setItem('clipboard-install-shown', '1');
-    } catch (e) {}
-    installShown = true;
-    if (installTitle) installTitle.textContent = '安装完成';
-    if (installDesc) installDesc.textContent = '已成功连接服务，现在可以使用了。';
-    if (installOpenBtn) installOpenBtn.textContent = '在浏览器打开';
-    if (installOkBtn) installOkBtn.textContent = '知道了';
-    installModal.classList.add('open');
-    installModal.setAttribute('aria-hidden', 'false');
-  }
-
-  function closeInstallModal() {
-    if (!installModal) return;
-    installModal.classList.remove('open');
-    installModal.setAttribute('aria-hidden', 'true');
-  }
-
-  if (installOkBtn) installOkBtn.addEventListener('click', closeInstallModal);
-  if (installModalBackdrop) installModalBackdrop.addEventListener('click', closeInstallModal);
-  if (installOpenBtn) installOpenBtn.addEventListener('click', () => {
-    const win = window.open(window.location.href, '_blank');
-    if (!win) window.location.href = window.location.href;
-  });
 
   function setStatusDisconnected(label) {
     statusEl.classList.remove('connected');
