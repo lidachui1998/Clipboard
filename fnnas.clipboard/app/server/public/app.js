@@ -20,6 +20,7 @@
   const confirmModalBackdrop = document.getElementById('confirmModalBackdrop');
   const confirmCancel = document.getElementById('confirmCancel');
   const confirmOk = document.getElementById('confirmOk');
+
   const uploadProgressWrap = document.getElementById('uploadProgressWrap');
   const uploadProgressBar = document.getElementById('uploadProgressBar');
   const uploadProgressText = document.getElementById('uploadProgressText');
@@ -388,6 +389,72 @@
     }
   }
 
+  function getDownloadExtFromMime(mimetype) {
+    const map = {
+      'image/jpeg': 'jpg',
+      'image/png': 'png',
+      'image/gif': 'gif',
+      'image/webp': 'webp',
+      'video/mp4': 'mp4',
+      'video/webm': 'webm',
+      'video/quicktime': 'mov',
+    };
+    return map[(mimetype || '').toLowerCase()] || '';
+  }
+
+  function buildDownloadName(item) {
+    const rawName = (item && item.filename ? String(item.filename) : '').trim();
+    const hasExt = rawName && rawName.includes('.');
+    let ext = '';
+    if (item && item.mimetype) ext = getDownloadExtFromMime(item.mimetype);
+    if (!ext && item && item.url) {
+      try {
+        const u = new URL(item.url, window.location.href);
+        const path = u.pathname || '';
+        const dot = path.lastIndexOf('.');
+        const slash = path.lastIndexOf('/');
+        if (dot > -1 && dot > slash) ext = path.slice(dot + 1);
+      } catch (e) {}
+    }
+    if (rawName) {
+      if (hasExt || !ext) return rawName;
+      return rawName + '.' + ext;
+    }
+    const base = item && item.type === 'image' ? 'image' : item && item.type === 'video' ? 'video' : 'file';
+    return ext ? base + '.' + ext : base;
+  }
+
+  async function downloadItem(item) {
+    if (!item || !item.url) return;
+    const filename = buildDownloadName(item);
+    try {
+      const r = await fetch(item.url);
+      if (!r.ok) throw new Error('http ' + r.status);
+      const blob = await r.blob();
+      const blobUrl = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = blobUrl;
+      a.download = filename;
+      a.style.display = 'none';
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      setTimeout(() => URL.revokeObjectURL(blobUrl), 1000);
+      showToast('开始下载');
+    } catch (e) {
+      const a = document.createElement('a');
+      a.href = item.url;
+      a.download = filename;
+      a.target = '_blank';
+      a.rel = 'noopener noreferrer';
+      a.style.display = 'none';
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      showToast('已打开下载链接');
+    }
+  }
+
   function openPreview(url, isVideo) {
     previewImage.classList.remove('visible');
     previewImage.src = '';
@@ -432,6 +499,19 @@
       e.preventDefault();
       copyItem(item);
     });
+    actions.appendChild(copyBtn);
+    if (item.type === 'image' || item.type === 'video' || item.type === 'file') {
+      const downloadBtn = document.createElement('button');
+      downloadBtn.type = 'button';
+      downloadBtn.className = 'btn btn-sm';
+      downloadBtn.textContent = '下载';
+      downloadBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        downloadItem(item);
+      });
+      actions.appendChild(downloadBtn);
+    }
     const delBtn = document.createElement('button');
     delBtn.type = 'button';
     delBtn.className = 'btn btn-sm btn-danger';
@@ -446,7 +526,6 @@
       confirmModal.classList.add('open');
       confirmModal.setAttribute('aria-hidden', 'false');
     });
-    actions.appendChild(copyBtn);
     actions.appendChild(delBtn);
     head.appendChild(actions);
     wrap.appendChild(head);
