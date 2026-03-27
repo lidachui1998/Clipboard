@@ -15,7 +15,7 @@ npm install
 npm start
 ```
 
-浏览器访问 `http://localhost:3846`（端口可在环境变量 `PORT` 中修改）。
+浏览器访问 `http://localhost:13847`（端口可在环境变量 `PORT` 中修改）。
 
 ## Docker 部署（含飞牛 OS）
 
@@ -25,7 +25,7 @@ npm start
 docker compose up -d
 ```
 
-访问 `http://<主机IP>:3846`。
+访问 `http://<主机IP>:13847`。
 
 **数据目录**：所有数据（历史记录 `clipboard.json` + 上传文件）都落在 **`./data`**，与 docker-compose 同目录，便于备份和迁移。
 
@@ -38,15 +38,15 @@ docker compose up -d
 docker pull ghcr.io/your-username/Clipboard:latest
 
 # 使用当前目录下的 ./data 持久化（推荐）
-docker run -d --name lan-clipboard -p 3846:3846 \
+docker run -d --name lan-clipboard -p 13847:13847 \
   -v ./data:/app/data \
   --restart unless-stopped \
   ghcr.io/your-username/Clipboard:latest
 ```
 
-- **端口**：映射 **3846**。
+- **端口**：映射 **13847**。
 - **卷**：挂载 **`./data`** 到容器内 `/app/data`，历史与上传文件都会保存在宿主机 `./data` 下。
-- 局域网访问：`http://<飞牛OS的IP>:3846`。
+- 局域网访问：`http://<飞牛OS的IP>:13847`。
 
 **拉取报 `unauthorized` 时**：GitHub 默认把 Actions 构建的镜像设为私有。请打开仓库 → 右侧 **Packages**（或 `https://github.com/lidachui1998/Clipboard/pkgs/container/clipboard`）→ 进入该 package → **Package settings** → **Change visibility** 改为 **Public**，保存后即可无需登录拉取。
 
@@ -62,9 +62,9 @@ docker run -d --name lan-clipboard -p 3846:3846 \
 
 ## 环境变量
 
-| 变量   | 说明     | 默认值 |
-|--------|----------|--------|
-| `PORT` | 服务端口 | 3846   |
+| 变量   | 说明     | 默认值   |
+|--------|----------|-------|
+| `PORT` | 服务端口 | 13847 |
 
 ## 技术栈
 

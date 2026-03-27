@@ -22,7 +22,7 @@ httpServer.on('request', (req, res) => {
   app(req, res);
 });
 
-const PORT = process.env.PORT || 3846;
+const PORT = process.env.PORT || 13847;
 // Prefer external data dir when running as a native app on NAS.
 const ENV_DATA_DIR =
   (process.env.DATA_DIR && process.env.DATA_DIR.trim()) ||

@@ -4,7 +4,7 @@
     "items": [
       {
         "type": "tips",
-        "helpText": "\u5b89\u88c5\u5b8c\u6210\u540e\uff0c\u8bf7\u5728\u6d4f\u89c8\u5668\u6253\u5f00 http://<NAS-IP>:3846"
+        "helpText": "\u5b89\u88c5\u5b8c\u6210\u540e\uff0c\u8bf7\u5728\u6d4f\u89c8\u5668\u6253\u5f00 http://<NAS-IP>:13847"
       },
       {
         "type": "tips",

@@ -5,6 +5,7 @@ PIDDIR=${TRIM_PKGVAR}/run
 PIDFILE=${PIDDIR}/service.pid
 LOG_FILE=${TRIM_PKGVAR}/info.log
 CONF_FILE=${TRIM_PKGETC}/${APPNAME}.env
+NODE_BIN=/var/apps/nodejs_v22/target/bin/node
 
 export PATH=/var/apps/nodejs_v22/target/bin:$PATH
 
@@ -13,7 +14,7 @@ if [ -f "${CONF_FILE}" ]; then
 fi
 
 DATA_DIR="${TRIM_DATA_SHARE_PATHS%%:*}"
-PORT=${PORT:-3846}
+PORT=${PORT:-13847}
 
 export DATA_DIR
 export PORT
@@ -24,7 +25,34 @@ fi
 
 sleep=3
 proc_path=${TRIM_APPDEST}/server/index.cjs
-proc_cmd="node ${proc_path}"
+proc_cmd="${NODE_BIN} ${proc_path}"
+
+resolve_node_bin() {
+    if [ -x "${NODE_BIN}" ]; then
+        return 0
+    fi
+    local fallback
+    fallback=`command -v node 2>/dev/null`
+    if [ -n "${fallback}" ]; then
+        NODE_BIN=${fallback}
+        proc_cmd="${NODE_BIN} ${proc_path}"
+        return 0
+    fi
+    echo "Node.js binary not found. Expected ${NODE_BIN} or 'node' in PATH." >> ${LOG_FILE}
+    return 1
+}
+
+check_health() {
+    if command -v curl >/dev/null 2>&1; then
+        curl -fsS --max-time 1 "http://127.0.0.1:${PORT}/health" >/dev/null 2>&1
+        return $?
+    fi
+    if command -v wget >/dev/null 2>&1; then
+        wget -q -T 1 -O - "http://127.0.0.1:${PORT}/health" >/dev/null 2>&1
+        return $?
+    fi
+    return 0
+}
 
 status() {
     local pid
@@ -41,14 +69,40 @@ status() {
 
 start() {
     echo "Starting ${APPNAME} ..."
+    resolve_node_bin || return 1
     status
     if [ $? -eq 0 ]; then
         return 0
     fi
+    if [ -f ${PIDFILE} ]; then
+        rm -f ${PIDFILE}
+    fi
     setsid ${proc_cmd} >> ${LOG_FILE} 2>&1 &
     pid=$!
     echo ${pid} > ${PIDFILE}
-    return 0
+
+    local i
+    i=0
+    while [ ${i} -lt 10 ]; do
+        status
+        if [ $? -eq 0 ]; then
+            check_health
+            if [ $? -eq 0 ]; then
+                return 0
+            fi
+        fi
+        sleep 1
+        i=`expr ${i} + 1`
+    done
+
+    echo "Failed to start ${APPNAME}: process exited or health check failed on port ${PORT}." >> ${LOG_FILE}
+    if [ -f ${LOG_FILE} ]; then
+        tail -n 50 ${LOG_FILE}
+    fi
+    if [ -f ${PIDFILE} ]; then
+        rm -f ${PIDFILE}
+    fi
+    return 1
 }
 
 stop() {
@@ -61,6 +115,9 @@ stop() {
         if [ $? -eq 0 ]; then
             kill -9 `cat ${PIDFILE}`
         fi
+    fi
+    if [ -f ${PIDFILE} ]; then
+        rm -f ${PIDFILE}
     fi
     return 0
 }

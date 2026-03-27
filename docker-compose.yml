@@ -6,16 +6,16 @@ services:
     container_name: lan-clipboard
     restart: unless-stopped
     ports:
-      - "3846:3846"
+      - "13847:13847"
     environment:
-      - PORT=3846
+      - PORT=13847
     volumes:
       - ./data:/app/data
     labels:
       watchcow.enable: "true"
       watchcow.display_name: "剪切板"
       watchcow.desc: "剪切板中转站"
-      watchcow.service_port: "3846"
+      watchcow.service_port: "13847"
       watchcow.protocol: "http"
       watchcow.path: "/"
       watchcow.icon: "https://r2.bjca.xyz/pasted_file_1770197357370_image.png"

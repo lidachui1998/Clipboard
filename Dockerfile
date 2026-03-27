@@ -11,7 +11,7 @@ COPY public ./public
 RUN mkdir -p uploads
 
 ENV NODE_ENV=production
-ENV PORT=3846
-EXPOSE 3846
+ENV PORT=13847
+EXPOSE 13847
 
 CMD ["node", "server.js"]
