@@ -77,19 +77,20 @@ start() {
     if [ -f ${PIDFILE} ]; then
         rm -f ${PIDFILE}
     fi
-    setsid ${proc_cmd} >> ${LOG_FILE} 2>&1 &
+    nohup ${proc_cmd} >> ${LOG_FILE} 2>&1 &
     pid=$!
     echo ${pid} > ${PIDFILE}
 
     local i
     i=0
-    while [ ${i} -lt 10 ]; do
-        status
+    while [ ${i} -lt 15 ]; do
+        check_health
         if [ $? -eq 0 ]; then
-            check_health
-            if [ $? -eq 0 ]; then
-                return 0
-            fi
+            return 0
+        fi
+        status
+        if [ $? -ne 0 ]; then
+            break
         fi
         sleep 1
         i=`expr ${i} + 1`
